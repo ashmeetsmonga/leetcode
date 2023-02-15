@@ -41,3 +41,19 @@ var addToArrayForm = function (num, k) {
 	if (carry) revNum.push(carry);
 	return revNum.reverse();
 };
+
+var addToArrayForm = function (num, k) {
+	let ans = [];
+
+	for (let i = num.length - 1; i >= 0; i--) {
+		ans.push((num[i] + k) % 10);
+		k = Math.floor((num[i] + k) / 10);
+	}
+
+	while (k) {
+		ans.push(k % 10);
+		k = Math.floor(k / 10);
+	}
+
+	return ans.reverse();
+};
