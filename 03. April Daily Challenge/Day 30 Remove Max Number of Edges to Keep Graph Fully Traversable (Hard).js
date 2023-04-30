@@ -1,13 +1,5 @@
 // 1579. Remove Max Number of Edges to Keep Graph Fully Traversable
-// Hard
 
-// 1599
-
-// 23
-
-// Add to List
-
-// Share
 // Alice and Bob have an undirected graph of n nodes and three types of edges:
 
 // Type 1: Can be traversed by Alice only.
@@ -44,50 +36,44 @@
 
 // Code
 var maxNumEdgesToRemove = function (n, edges) {
-	function find(node) {
-		if (par[node] !== node) {
-			par[node] = find(par[node]);
-		}
-		return par[node];
-	}
-
-	function union(node1, node2) {
-		const x = find(node1);
-		const y = find(node2);
-		if (x == y) return false;
-		par[x] = y;
-		return true;
-	}
-
-	let par = new Array(n + 1).fill().map((_, i) => i);
-	let res = 0;
-	let e1 = 0;
-	let e2 = 0;
+	const alice = new UnionFind(n),
+		bob = new UnionFind(n);
+	let count = 0;
 
 	for (let [type, n1, n2] of edges) {
-		if (type === 3) {
-			if (union(n1, n2)) {
-				e1 += 1;
-				e2 += 1;
-			} else res += 1;
-		}
+		if (type === 3 && alice.union(n1, n2) && bob.union(n1, n2)) count += 1;
 	}
-	const par2 = [...par];
+
 	for (let [type, n1, n2] of edges) {
-		if (type === 1) {
-			if (union(n1, n2)) {
-				e1 += 1;
-			} else res += 1;
-		}
+		if (type === 1 && alice.union(n1, n2)) count += 1;
+		if (type === 2 && bob.union(n1, n2)) count += 1;
 	}
-	par = par2;
-	for (let [type, n1, n2] of edges) {
-		if (type === 2) {
-			if (union(n1, n2)) {
-				e2 += 1;
-			} else res += 1;
-		}
-	}
-	if (e1 === n - 1 && e2 === n - 1) return res;
+
+	if (alice.components === 1 && bob.components === 1) return edges.length - count;
 	else return -1;
 };
+
+class UnionFind {
+	constructor(n) {
+		this.parent = new Array(n).fill().map((_, i) => i);
+		this.components = n;
+	}
+
+	find(node) {
+		if (this.parent[node] !== node) {
+			this.parent[node] = this.find(this.parent[node]);
+		}
+		return this.parent[node];
+	}
+
+	union(node1, node2) {
+		const parNode1 = this.find(node1),
+			parNode2 = this.find(node2);
+		if (parNode1 === parNode2) return false;
+		else {
+			this.parent[parNode2] = parNode1;
+			this.components -= 1;
+			return true;
+		}
+	}
+}
